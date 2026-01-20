@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * DefaultBlockManager is an interface that relies on the Path interface
+ * FileChannelBlockManager is an interface that relies on the Path interface
  * to create physical containers on the current platform's filesystem.
  */
 public class FileChannelBlockManager implements BlockManager {
@@ -29,6 +29,7 @@ public class FileChannelBlockManager implements BlockManager {
             numberOfBlocks++;
             buffer.clear();
         }
+        file.close();
     }
 
     @Override
