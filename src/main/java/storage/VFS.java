@@ -1,7 +1,6 @@
 package storage;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 /**
  * VFS is a Virtual File System that abstract over the

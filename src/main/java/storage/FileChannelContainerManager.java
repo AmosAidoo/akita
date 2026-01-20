@@ -1,7 +1,6 @@
 package storage;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class FileChannelContainerManager implements ContainerManager {
