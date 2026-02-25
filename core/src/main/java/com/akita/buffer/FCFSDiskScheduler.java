@@ -28,7 +28,7 @@ public class FCFSDiskScheduler implements DiskScheduler {
     }
 
     @Override
-    public void schedulePageWrite(PageId pageId, ByteBuffer buffer) {
-        executor.submit(WriteRequest.create(pageId, buffer, blockManager));
+    public Future<?> schedulePageWrite(PageId pageId, ByteBuffer buffer) {
+        return executor.submit(WriteRequest.create(pageId, buffer, blockManager));
     }
 }

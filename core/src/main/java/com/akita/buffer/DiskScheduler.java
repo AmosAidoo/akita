@@ -7,5 +7,5 @@ public interface DiskScheduler {
 
     Future<ByteBuffer> schedulePageRead(PageId pageId);
 
-    void schedulePageWrite(PageId pageId, ByteBuffer buffer);
+    Future<?> schedulePageWrite(PageId pageId, ByteBuffer buffer);
 }
