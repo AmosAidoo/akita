@@ -185,7 +185,8 @@ public class ArcReplacer implements Replacer {
                     // Deliberate fall through
                 case T2:
                     t2.removeFromList(item);
-                    setEvictable(frameId, false);
+                    item.setIsEvictable(false);
+                    currentEvictableSize--;
                     break;
                 case B1:
                     b1.removeFromList(item);

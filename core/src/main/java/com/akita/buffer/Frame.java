@@ -1,15 +1,23 @@
 package com.akita.buffer;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Frame represents a single slot in the {@link BufferPoolManager}
  */
 public class Frame {
+    private final ReentrantReadWriteLock readWriteLatch = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock.ReadLock readLatch = readWriteLatch.readLock();
+    private final ReentrantReadWriteLock.WriteLock writeLatch = readWriteLatch.writeLock();
+
     private final int FRAME_SIZE = 8192;
     private final FrameId frameId;
-    private boolean isDirty = false;
-    private int pinCount = 0;
+    private volatile boolean isDirty = false;
+    private volatile Future<?> pendingWrite;
+    private final AtomicInteger pinCount = new AtomicInteger(0);
     private final ByteBuffer data = ByteBuffer.allocate(FRAME_SIZE);
     private PageId pageId = null;
 
@@ -21,11 +29,40 @@ public class Frame {
         return new Frame(frameId);
     }
 
+    public ReentrantReadWriteLock.ReadLock getReadLatch() {
+        return readLatch;
+    }
+
+    public ReentrantReadWriteLock.WriteLock getWriteLatch() {
+        return writeLatch;
+    }
+
+    public Future<?> getPendingWrite() {
+        return pendingWrite;
+    }
+    public void setPendingWrite(Future<?> future) {
+        pendingWrite = future;
+    }
+
+    public FrameId getFrameId() {
+        return frameId;
+    }
+
     public void setIsDirty(boolean isDirty) {
         this.isDirty = isDirty;
     }
 
+    public boolean getIsDirty() {
+        return isDirty;
+    }
+
+    public ByteBuffer getReadOnlyData() {
+        data.clear();
+        return data.asReadOnlyBuffer();
+    }
+
     public ByteBuffer getData() {
+        data.clear();
         return data;
     }
 
@@ -39,11 +76,19 @@ public class Frame {
     }
 
     public boolean isEvictable() {
-        return pinCount == 0;
+        return pinCount.intValue() == 0;
     }
 
     public void pin() {
-        pinCount++;
+        pinCount.incrementAndGet();
+    }
+
+    public void unpin() {
+        pinCount.decrementAndGet();
+    }
+
+    public int getPinCount() {
+        return pinCount.get();
     }
 
     @Override
